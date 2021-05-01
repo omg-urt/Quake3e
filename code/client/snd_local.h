@@ -60,6 +60,7 @@ typedef struct sfx_s {
 	char 			soundName[MAX_QPATH];
 	int				lastTimeUsed;
 	struct sfx_s	*next;
+	qboolean		weaponsound;
 } sfx_t;
 
 typedef struct {
@@ -95,12 +96,20 @@ typedef struct loopSound_s {
 
 typedef struct
 {
+	int		vol; // Must be first member due to union (see channel_t)
+	int		offset;
+	int		bassvol;
+	int		bassoffset;
+	int		reverbvol;
+	int		reverboffset;
+} ch_side_t;
+
+typedef struct
+{
 	int			allocTime;
 	int			startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
 	int			entnum;			// to allow overriding a specific sound
 	int			entchannel;		// to allow overriding a specific sound
-	int			leftvol;		// 0-255 volume after spatialization
-	int			rightvol;		// 0-255 volume after spatialization
 	int			master_vol;		// 0-255 volume before spatialization
 	float		dopplerScale;
 	float		oldDopplerScale;
@@ -108,6 +117,17 @@ typedef struct
 	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
 	qboolean	doppler;
+	union
+	{
+		int		leftvol; // 0-255 volume after spatialization
+		ch_side_t 	l;
+	};
+	union
+	{
+		int		rightvol; // 0-255 volume after spatialization
+		ch_side_t	r;
+	};
+	vec3_t 		sodrot;
 } channel_t;
 
 
@@ -159,6 +179,7 @@ typedef struct
 
 // initializes cycling through a DMA buffer and returns information on it
 qboolean SNDDMA_Init(void);
+qboolean SNDDMAHD_DevList(void);
 
 // gets the current DMA position
 int		SNDDMA_GetDMAPos(void);

@@ -269,12 +269,12 @@ LExit:
 void S_WriteLinearBlastStereo16_SSE_x64( int*, short*, int );
 #endif
 
-void S_TransferStereo16( unsigned long *pbuf, int endtime )
+static void S_TransferStereo16( unsigned long *pbuf, portable_samplepair_t inputbuf[], int endtime )
 {
 	int		lpos;
 	int		ls_paintedtime;
 
-	snd_p = (int *) paintbuffer;
+	snd_p = (int *) inputbuf;
 	ls_paintedtime = s_paintedtime;
 
 	while (ls_paintedtime < endtime)
@@ -316,7 +316,7 @@ S_TransferPaintBuffer
 
 ===================
 */
-static void S_TransferPaintBuffer( int endtime, byte *buffer )
+void S_TransferPaintBuffer( int endtime, byte *buffer, portable_samplepair_t inputbuffer[] )
 {
 	int 	out_idx;
 	int 	i, count;
@@ -332,16 +332,16 @@ static void S_TransferPaintBuffer( int endtime, byte *buffer )
 		// write a fixed sine wave
 		count = (endtime - s_paintedtime);
 		for (i=0 ; i<count ; i++)
-			paintbuffer[i].left = paintbuffer[i].right = sin((s_paintedtime+i)*0.1)*20000*256;
+			inputbuffer[i].left = inputbuffer[i].right = sin((s_paintedtime+i)*0.1)*20000*256;
 	}
 
 	if ( dma.samplebits == 16 && dma.channels == 2 )
 	{	// optimized case
-		S_TransferStereo16( pbuf, endtime );
+		S_TransferStereo16( pbuf, inputbuffer, endtime );
 	}
 	else
 	{	// general case
-		p = (int *) paintbuffer;
+		p = (int *) inputbuffer;
 		count = (endtime - s_paintedtime) * dma.channels;
 		out_mask = dma.samples - 1; 
 		out_idx = s_paintedtime * dma.channels & out_mask;
@@ -792,7 +792,7 @@ void S_PaintChannels( int endtime ) {
 		}
 
 		// transfer out according to DMA format
-		S_TransferPaintBuffer( end, buffer );
+		S_TransferPaintBuffer( end, buffer, paintbuffer );
 		s_paintedtime = end;
 	}
 }
