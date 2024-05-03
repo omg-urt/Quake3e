@@ -4152,7 +4152,7 @@ void CL_Init( void ) {
 
 	cl_lanForcePackets = Cvar_Get( "cl_lanForcePackets", "1", CVAR_ARCHIVE_ND );
 
-	cl_guidServerUniq = Cvar_Get( "cl_guidServerUniq", "1", CVAR_ARCHIVE_ND );
+	cl_guidServerUniq = Cvar_Get( "cl_guidServerUniq", "1", CVAR_ARCHIVE_ND | CVAR_PROTECTED );
 
 	cl_dlURL = Cvar_Get( "cl_dlURL", "http://urt.li/q3ut4/%1.pk3", CVAR_ARCHIVE_ND );
 
